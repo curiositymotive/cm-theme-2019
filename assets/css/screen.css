@@ -160,21 +160,21 @@ body {
 
 .site-title {
     z-index: 10;
-    margin: 0;
+    margin: 0 0 .75rem 0;
     padding: 0;
     font-size: 3.8rem;
     font-weight: 700;
 }
 
 .site-logo {
-    max-height: 45px;
+    max-height: 50px;
 }
 
 .site-description {
     z-index: 10;
     margin: 0;
     padding: 5px 0;
-    font-size: 2.2rem;
+    font-size:1.75rem;
     font-weight: 300;
     letter-spacing: 0.5px;
     opacity: 0.8;
@@ -185,7 +185,7 @@ body {
         font-size: 3rem;
     }
     .site-description {
-        font-size: 1.8rem;
+        font-size: 1.25rem;
     }
 }
 
