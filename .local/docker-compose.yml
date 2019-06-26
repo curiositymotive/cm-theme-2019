@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  cm-ghost:
+    container_name: cm-ghost
+    image: ghost:alpine
+    restart: unless-stopped
+    ports:
+      - 2368:2368
+    volumes:
+      - ../:/var/lib/ghost/content/themes/casper
+      - ./images:/var/lib/ghost/content/images
+    environment:
+      - NODE_ENV=development
+    command: >
+      bash -c "cp config.production.json config.development.json && bash /usr/local/bin/docker-entrypoint.sh node current/index.js"

@@ -1,47 +1,71 @@
 # CM-theme (2019)
 Ghost theme for Curiosity Motive (2019 edition)
 
-> Note: This is the previous README information. All information below is likely not to work currently, and will be updated eventually. This is the original Casper theme, (sort of) forked from the [Casper repo](https://github.com/TryGhost/Casper). See their README for info on running this locally - (as of 06.24.19)
-
-### Dependencies
-
-Please make sure your dependencies match the following.
-
-- Node: `>4.2`
-- Gulp `>3.9`
-
-### Setup
-
-In this setup, `gulp` will install everything that you need to run Ghost locally for development (other than the Ghost content)
-
-1. Run `npm install` to ensure the required dependencies are installed.
-2. Run `gulp` and you'll have a new Ghost site generated for you and displayed in your browser.
-3. Your default browser will open up [localhost:3000](http://localhost:3000/) automatically.
+> Note: This README information is still in process. This is the original Casper theme, (sort of) forked from the [Casper repo](https://github.com/TryGhost/Casper). See their README for expanded theme info and links to the Ghost theme API for more information.
 
 
-#### Ghost setup
+## Dependencies
 
-1. Proceed to [localhost:3000/ghost/setup/](http://localhost:3000/ghost/setup/) to setup your Ghost install locally.
+- [Docker](https://docs.docker.com/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
+- [Node](https://nodejs.org/)
+- [Yarn](https://yarnpkg.com/)
+- [Gulp](https://gulpjs.com)
+
+## Setup
+
+Docker is awesome. In this setup, we'll be using it to load up our site and get it running. It's pretty simple, provided that you have the dependencies installed already and have Docker running locally.
+
+On a mac, you can just install Node, Yarn and Gulp with [Homebrew](https://brew.sh) to get up and running fairly quickly. (`brew install node yarn gulp`)
+
+This should be everything that you'll need to run Ghost locally for development (other than the Ghost content, see below)
+
+1. Clone this repo to your machine
+2. Change to the .local dir - `cd .local`
+3. Start the Ghost instance with Docker Compose - `docker-compose up -d` (you can just run `docker-compose up` without the `-d` flag if you want to see the Ghost CLI output)
+4. Head over to [localhost:2368](http://localhost:2368/) in your browser, you should see that Ghost is up and running now
+
+### Ghost setup
+
+1. Proceed to [localhost:2368/ghost/](http://localhost:2368/ghost/) to setup your Ghost install locally.
 2. Run through the steps for setup, including setting up the local administrative user.
 3. You can skip sending out invites on next screen, as email relays aren't setup yet.
-4. Once you're in the administration, under the `Labs` link on the left there's a section for data import. You want to export the data from the current live CM site on it's respective `Labs` section and save to your computer.
-5. Import the data you saved from CM.
-6. Match up the backend settings from the live CM site to your local instance if they differ at all. ([General](http://localhost:3000/ghost/settings/general/), [Navigation](http://localhost:3000/ghost/settings/navigation/) and [Labs](http://localhost:3000/ghost/settings/labs/) sections)
-7. Quit `gulp`
+4. In the Admin, go ahead and navigate to the [Staff](http://localhost:2368/ghost/#/staff) section and click on the Admin user. In the gear icon on the top right, choose `Delete User` and remove the user and all of their posts. (This will remove the initial demo content fromt the site)
+5. Under the `Labs` link on the left there's a section for data import. You want to export the data from the current live CM site on it's respective `Labs` section and save to your computer.
+6. Import the data you saved from the CM site.
+7. Match up the backend settings from the live CM site to your local instance if they differ at all. ([General](http://localhost:2368/ghost/#/settings/general), [Design](http://localhost:2368/ghost/#/settings/design) and [Labs](http://localhost:2368/ghost/#/settings/labs) sections)
 
-#### Theme setup
+### Theme setup
 
-1. If you want to have all images from the live site, pull down the folder from the CM server at `/srv/users/serverpilot/apps/curiositymotive/public/content/images/2017/` and put in your Ghost folder at `~/YOURPATH/cm-theme/node_modules/ghost/content/images/2017/`.
-2. Grab the `symlink.js` file from [this gist](https://gist.github.com/ff4500/665c2c8124081b46f6fe984ba4be49a3).
-3. In a text editor, open up the `symlink.js` file you downloaded and place into `~/YOURPATH/cm-theme/gulp/tasks/`. Change the `.src('/YOURPATH/WHATEVER/')` path for the theme and images folders to match your local environment.
-4. Run `gulp init` to automatically setup your local symbolic links.
-5. Run `gulp` to start the project again
-6. In your browser, navigate to [localhost:3000/ghost/settings/general/](http://localhost:3000/ghost/settings/general/) and scroll down to the 	`Themes` section at the bottom of the page.
-7. Click to activate the `CM-Theme - 1.X.X` and hit save on the top right.
-8. Go back to [localhost:3000/](http://localhost:3000/) and your site should be ready to go.
+1. If you want to have all images from the live site, pull down the folder from the CM server at `/srv/www/curiositymotive.com/public/images/` and put in your Ghost folder at `~/YOURPATH/cm-theme-2019/.local/images/`
+2. Make sure you're in the .local dir in the theme repo - `cd ~/YOURPATH/cm-theme-2019/.local/`
+3. Restart the instance with Docker Compose - `docker-compose down && docker-compose up -d`
+4. Go back to [localhost:2368/](http://localhost:2368/) and your newly loaded images should be ready to go.
 
-Note: You probably want to remove the example post entitled **Welcome to Ghost** at your convenience.
+> Note: Any changes that you make to the local images folder will NOT be mirrored on the live site. Be sure to also make your edits there as well (to avoid the import/export dance over and over).
+
+## Theme Development
+
+Theme styles are compiled using Gulp/PostCSS to polyfill future CSS spec. From the theme's root directory (`cd ~/YOURPATH/cm-theme-2019/`), run:
+
+```bash
+$ yarn install
+$ yarn dev
+```
+
+Now you can edit `/assets/css/` files, which will be compiled to `/assets/built/` automatically.
+
+The `zip` Gulp task packages the theme files into `dist/<theme-name>.zip`, which you can then upload to your site.
+
+```bash
+$ yarn zip
+```
+
+> Note: If you are running Ghost in the foreground with `docker-compose up`, rather in detatched mode, you'll have to open up a new terminal window and navigate to the theme dir in order to run the `yarn` commands above. Also, we likely won't be uploading the zipped theme files to the site directly. See below for deployment information of your completed/updated theme.
 
 ### Deploying
 
-Deployment is done by doing a `git pull origin master` in the `cm-theme` directory on the server itself. Any git push of template files will require a restart of Ghost. Post up in the Slack channel if you need it restarted for some reason.
+Deployment is done by doing a `git pull origin master` in the `cm-theme-2019` directory on the server itself (`/srv/www/curiositymotive.com/public/themes/cm-theme-2019/`). Any git push of template files will require a restart of Ghost. Post up in the Slack channel if you need it restarted for some reason.
+
+--
+
+_Updated 06.24.19_
