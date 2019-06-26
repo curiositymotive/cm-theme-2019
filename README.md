@@ -1,7 +1,7 @@
 # CM-theme (2019)
 Ghost theme for Curiosity Motive (2019 edition)
 
-> Note: This is the previous README information. All information below is likely not to work currently, and will be updated eventually. (as of 06.24.19)
+> Note: This is the previous README information. All information below is likely not to work currently, and will be updated eventually. This is the original Casper theme, (sort of) forked from the [Casper repo](https://github.com/TryGhost/Casper). See their README for info on running this locally - (as of 06.24.19)
 
 ### Dependencies
 
