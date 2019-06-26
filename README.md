@@ -43,6 +43,14 @@ This should be everything that you'll need to run Ghost locally for development 
 
 > Note: Any changes that you make to the local images folder will NOT be mirrored on the live site. Be sure to also make your edits there as well (to avoid the import/export dance over and over).
 
+#### Updating images from the live site
+
+If you have already downloaded the images at some point and just want to update from the live site, you can use rsync to quickly update your local files:
+
+```
+rsync -azP user@dev.curiositymotive:/srv/www/curiositymotive.com/public/images ~/YOURPATH/cm-theme-2019/.local/
+```
+
 ## Theme Development
 
 Theme styles are compiled using Gulp/PostCSS to polyfill future CSS spec. From the theme's root directory (`cd ~/YOURPATH/cm-theme-2019/`), run:
@@ -66,6 +74,6 @@ $ yarn zip
 
 Deployment is done by doing a `git pull origin master` in the `cm-theme-2019` directory on the server itself (`/srv/www/curiositymotive.com/public/themes/cm-theme-2019/`). Any git push of template files will require a restart of Ghost. Post up in the Slack channel if you need it restarted for some reason.
 
---
+----
 
 _Updated 06.24.19_
