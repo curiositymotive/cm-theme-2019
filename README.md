@@ -48,7 +48,7 @@ This should be everything that you'll need to run Ghost locally for development 
 If you have already downloaded the images at some point and just want to update from the live site, you can use rsync to quickly update your local files:
 
 ```
-rsync -azP user@dev.curiositymotive:/srv/www/curiositymotive.com/public/images ~/YOURPATH/cm-theme-2019/.local/
+rsync -azP user@curiositymotive.com:/srv/www/curiositymotive.com/public/images ~/YOURPATH/cm-theme-2019/.local/
 ```
 
 ## Theme Development
@@ -62,7 +62,7 @@ $ yarn dev
 
 Now you can edit `/assets/css/` files, which will be compiled to `/assets/built/` automatically.
 
-The `zip` Gulp task packages the theme files into `dist/<theme-name>.zip`, which you can then upload to your site.
+The `zip` Gulp task packages the theme files into `dist/cm-theme-2019.zip`, which you can then upload to your site.
 
 ```bash
 $ yarn zip
@@ -70,7 +70,7 @@ $ yarn zip
 
 > Note: If you are running Ghost in the foreground with `docker-compose up`, rather in detatched mode, you'll have to open up a new terminal window and navigate to the theme dir in order to run the `yarn` commands above. Also, we likely won't be uploading the zipped theme files to the site directly. See below for deployment information of your completed/updated theme.
 
-### Deploying
+## Deploying
 
 Deployment is done by doing a `git pull origin master` in the `cm-theme-2019` directory on the server itself (`/srv/www/curiositymotive.com/public/themes/cm-theme-2019/`). Any git push of template files will require a restart of Ghost. Post up in the Slack channel if you need it restarted for some reason.
 
