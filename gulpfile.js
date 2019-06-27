@@ -4,6 +4,7 @@ const pump = require('pump');
 // adding sass
 const sass = require('gulp-sass');
 const concat = require('gulp-concat-css');
+const sourcemaps = require('gulp-sourcemaps');
 
 // gulp plugins and utils
 const livereload = require('gulp-livereload');
@@ -20,71 +21,70 @@ const customProperties = require('postcss-custom-properties');
 const easyimport = require('postcss-easy-import');
 
 function serve(done) {
-    livereload.listen();
-    done();
+  livereload.listen();
+  done();
 }
 
 const handleError = (done) => {
-    return function (err) {
-        if (err) {
-            beeper();
-        }
-        return done(err);
-    };
+  return function (err) {
+    if (err) {
+      beeper();
+    }
+    return done(err);
+  };
 };
 
 function hbs(done) {
-    pump([
-        src(['*.hbs', 'partials/**/*.hbs', '!node_modules/**/*.hbs']),
-        livereload()
-    ], handleError(done));
+  pump([
+    src(['*.hbs', 'partials/**/*.hbs', '!node_modules/**/*.hbs']),
+    livereload()
+  ], handleError(done));
 }
 
 function css(done) {
-    const processors = [
-        easyimport,
-        customProperties({preserve: false}),
-        colorFunction(),
-        autoprefixer({browsers: ['last 2 versions']}),
-        cssnano()
-    ];
+  const processors = [
+    easyimport,
+    customProperties({preserve: false}),
+    colorFunction(),
+    autoprefixer({browsers: ['last 2 versions']}),
+    cssnano()
+  ];
 
-    pump([
-        //src('assets/css/*.css', {sourcemaps: true}),
-        //postcss(processors),
-        //dest('assets/built/', {sourcemaps: '.'}),
-        src('assets/scss/screen.scss', {sourcemaps: true}),
-        sass(),
-        concat('site.css'),
-        postcss(processors),
-        dest('assets/built/', {sourcemaps: '.'}),
-        livereload()
-    ], handleError(done));
+  pump([
+    src('assets/scss/cm-theme.scss', {sourcemaps: true}),
+    sass(),
+    concat('site.css'),
+    sourcemaps.init(),
+    postcss(processors),
+    sourcemaps.write(),
+    dest('assets/built/', {sourcemaps: '.'}),
+    livereload()
+  ], handleError(done));
 }
 
 function js(done) {
-    pump([
-        src('assets/js/*.js', {sourcemaps: true}),
-        uglify(),
-        dest('assets/built/', {sourcemaps: '.'}),
-        livereload()
-    ], handleError(done));
+  pump([
+    src('assets/js/*.js', {sourcemaps: true}),
+    uglify(),
+    dest('assets/built/', {sourcemaps: '.'}),
+    livereload()
+  ], handleError(done));
 }
 
 function zipper(done) {
-    const targetDir = 'dist/';
-    const themeName = require('./package.json').name;
-    const filename = themeName + '.zip';
+  const targetDir = 'dist/';
+  const themeName = require('./package.json').name;
+  const filename = themeName + '.zip';
 
-    pump([
-        src([
-            '**',
-            '!node_modules', '!node_modules/**',
-            '!dist', '!dist/**'
-        ]),
-        zip(filename),
-        dest(targetDir)
-    ], handleError(done));
+  pump([
+    src([
+      '**',
+      '!node_modules', '!node_modules/**',
+      '!dist', '!dist/**'
+    ]),
+    zip(filename),
+    dest(targetDir)
+  ], handleError(done));
 }
 
 const cssWatcher = () => watch('assets/scss/**', css);
@@ -103,9 +103,9 @@ const releaseUtils = require('@tryghost/release-utils');
 
 let config;
 try {
-    config = require('./config');
+  config = require('./config');
 } catch (err) {
-    config = null;
+  config = null;
 }
 
 const REPO = 'TryGhost/Casper';
@@ -113,104 +113,104 @@ const USER_AGENT = 'Casper';
 const CHANGELOG_PATH = path.join(process.cwd(), '.', 'changelog.md');
 
 const changelog = ({previousVersion}) => {
-    const changelog = new releaseUtils.Changelog({
-        changelogPath: CHANGELOG_PATH,
-        folder: path.join(process.cwd(), '.')
-    });
+  const changelog = new releaseUtils.Changelog({
+    changelogPath: CHANGELOG_PATH,
+    folder: path.join(process.cwd(), '.')
+  });
 
-    changelog
-        .write({
-            githubRepoPath: `https://github.com/${REPO}`,
-            lastVersion: previousVersion
-        })
-        .sort()
-        .clean();
+  changelog
+  .write({
+    githubRepoPath: `https://github.com/${REPO}`,
+    lastVersion: previousVersion
+  })
+  .sort()
+  .clean();
 };
 
 const previousRelease = () => {
-    return releaseUtils
-        .releases
-        .get({
-            userAgent: USER_AGENT,
-            uri: `https://api.github.com/repos/${REPO}/releases`
-        })
-        .then((response) => {
-            if (!response || !response.length) {
-                console.log('No releases found. Skipping');
-                return;
-            }
+  return releaseUtils
+  .releases
+  .get({
+    userAgent: USER_AGENT,
+    uri: `https://api.github.com/repos/${REPO}/releases`
+  })
+  .then((response) => {
+    if (!response || !response.length) {
+      console.log('No releases found. Skipping');
+      return;
+    }
 
-            console.log(`Previous version ${response[0].name}`);
-            return response[0].name;
-        });
+    console.log(`Previous version ${response[0].name}`);
+    return response[0].name;
+  });
 };
 
 /**
- *
- * `yarn ship` will trigger `postship` task.
- *
- * [optional] For full automation
- *
- * `GHOST=2.10.1,2.10.0 yarn ship`
- * First value: Ships with Ghost
- * Second value: Compatible with Ghost/GScan
- *
- * You can manually run in case the task has thrown an error.
- *
- * `npm_package_version=0.5.0 gulp release`
- */
+*
+* `yarn ship` will trigger `postship` task.
+*
+* [optional] For full automation
+*
+* `GHOST=2.10.1,2.10.0 yarn ship`
+* First value: Ships with Ghost
+* Second value: Compatible with Ghost/GScan
+*
+* You can manually run in case the task has thrown an error.
+*
+* `npm_package_version=0.5.0 gulp release`
+*/
 const release = () => {
-    // @NOTE: https://yarnpkg.com/lang/en/docs/cli/version/
-    const newVersion = process.env.npm_package_version;
-    let shipsWithGhost = '{version}';
-    let compatibleWithGhost = '2.10.0';
-    const ghostEnvValues = process.env.GHOST || null;
+  // @NOTE: https://yarnpkg.com/lang/en/docs/cli/version/
+  const newVersion = process.env.npm_package_version;
+  let shipsWithGhost = '{version}';
+  let compatibleWithGhost = '2.10.0';
+  const ghostEnvValues = process.env.GHOST || null;
 
-    if (ghostEnvValues) {
-        shipsWithGhost = ghostEnvValues.split(',')[0];
-        compatibleWithGhost = ghostEnvValues.split(',')[1];
+  if (ghostEnvValues) {
+    shipsWithGhost = ghostEnvValues.split(',')[0];
+    compatibleWithGhost = ghostEnvValues.split(',')[1];
 
-        if (!compatibleWithGhost) {
-            compatibleWithGhost = '2.10.0';
-        }
+    if (!compatibleWithGhost) {
+      compatibleWithGhost = '2.10.0';
     }
+  }
 
-    if (!newVersion || newVersion === '') {
-        console.log('Invalid version.');
-        return;
-    }
+  if (!newVersion || newVersion === '') {
+    console.log('Invalid version.');
+    return;
+  }
 
-    console.log(`\nDraft release for ${newVersion}.`);
+  console.log(`\nDraft release for ${newVersion}.`);
 
-    if (!config || !config.github || !config.github.username || !config.github.token) {
-        console.log('Please copy config.example.json and configure Github token.');
-        return;
-    }
+  if (!config || !config.github || !config.github.username || !config.github.token) {
+    console.log('Please copy config.example.json and configure Github token.');
+    return;
+  }
 
-    return previousRelease()
-        .then((previousVersion) => {
-            changelog({previousVersion});
+  return previousRelease()
+  .then((previousVersion) => {
+    changelog({previousVersion});
 
-            return releaseUtils
-                .releases
-                .create({
-                    draft: true,
-                    preRelease: false,
-                    tagName: newVersion,
-                    releaseName: newVersion,
-                    userAgent: USER_AGENT,
-                    uri: `https://api.github.com/repos/${REPO}/releases`,
-                    github: {
-                        username: config.github.username,
-                        token: config.github.token
-                    },
-                    content: [`**Ships with Ghost ${shipsWithGhost} Compatible with Ghost >= ${compatibleWithGhost}**\n\n`],
-                    changelogPath: CHANGELOG_PATH
-                })
-                .then((response) => {
-                    console.log(`\nRelease draft generated: ${response.releaseUrl}\n`);
-                });
-        });
+    return releaseUtils
+    .releases
+    .create({
+      draft: true,
+      preRelease: false,
+      tagName: newVersion,
+      releaseName: newVersion,
+      userAgent: USER_AGENT,
+      uri: `https://api.github.com/repos/${REPO}/releases`,
+      github: {
+        username: config.github.username,
+        token: config.github.token
+      },
+      content: [`**Ships with Ghost ${shipsWithGhost} Compatible with Ghost >= ${compatibleWithGhost}**\n\n`],
+      changelogPath: CHANGELOG_PATH
+    })
+    .then((response) => {
+      console.log(`\nRelease draft generated: ${response.releaseUrl}\n`);
+    });
+  });
 };
 
 exports.release = release;
